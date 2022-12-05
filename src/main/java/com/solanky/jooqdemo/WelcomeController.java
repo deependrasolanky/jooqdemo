@@ -1,6 +1,7 @@
 package com.solanky.jooqdemo;
 
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +17,15 @@ import static org.jooq.impl.DSL.*;
 public class WelcomeController {
     @Autowired
     private DSLContext dslContext;
+
     @GetMapping("/welcome")
     public String Welcome() {
-        String welcomeMsg = "Welcome to Springboot planet!";
-        var result = dslContext.select(Tables.ACCOUNTS.CREATED_ON, currentOffsetDateTime(), dateDiff(currentOffsetDateTime().cast(Date.class), Tables.ACCOUNTS.CREATED_ON.cast(Date.class))).from(Tables.ACCOUNTS).fetch();
+        Field<?> sort_order    = field("sort_order");
+        var result = dslContext
+                .select(Tables.ACCOUNTS.CREATED_ON, currentOffsetDateTime(), dateDiff(currentOffsetDateTime().cast(Date.class), Tables.ACCOUNTS.CREATED_ON.cast(Date.class)).as("sort_order"))
+                .from(Tables.ACCOUNTS)
+                .orderBy(sort_order.asc())
+                .fetch();
         return result.toString();
     }
 }
